@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ocean Fish Game</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(#87ceeb, #1e90ff);
+    }
+
+    h1 {
+      color: white;
+      margin: 15px 0 5px;
+    }
+
+    #instruction {
+      color: #e0f7ff;
+      font-size: 14px;
+    }
+
+    #score {
+      color: white;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    /* Back button */
+    #backBtn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 20px;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+      z-index: 10;
+    }
+
+    #backBtn:hover {
+      background: #e0f7ff;
+    }
+
+    /* Ocean */
+    #ocean {
+      position: relative;
+      width: 100%;
+      height: 420px;
+      background: linear-gradient(#0077be, #003f7f);
+      overflow: hidden;
+    }
+
+    /* Fish */
+    .fish {
+      position: absolute;
+      font-size: 34px;
+      cursor: pointer;
+      user-select: none;
+      z-index: 2;
+      transition: transform linear;
+    }
+
+    /* Waves */
+    .wave {
+      position: absolute;
+      bottom: 0;
+      width: 200%;
+      height: 90px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 100% 100% 0 0;
+      animation: waveMove 10s linear infinite,
+                 waveFloat 4s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    .wave2 {
+      height: 70px;
+      opacity: 0.2;
+      animation-duration: 14s, 6s;
+    }
+
+    .wave3 {
+      height: 50px;
+      opacity: 0.15;
+      animation-duration: 18s, 8s;
+    }
+
+    @keyframes waveMove {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    @keyframes waveFloat {
+      0%, 100% { bottom: 0; }
+      50% { bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Back button -->
+  <button id="backBtn" onclick="history.back()">⬅ Back</button>
+
+  <h1>Catch the fish</h1>
+  <div id="instruction">Catch the clownfish 🐠</div>
+  <div id="score">Score: 0</div>
+
+  <div id="ocean">
+    <div class="wave"></div>
+    <div class="wave wave2"></div>
+    <div class="wave wave3"></div>
+  </div>
+
+  <script>
+    const ocean = document.getElementById("ocean");
+    const scoreDisplay = document.getElementById("score");
+    let score = 0;
+
+    const correctFish = "🐠";
+    const otherFish = [
+      "🐟", "🐡", "🐬", "🦈", "🐳", "🐋", "🦑", "🐙"
+    ];
+
+    function createFish(emoji, isCorrect = false) {
+      const fish = document.createElement("div");
+      fish.className = "fish";
+      fish.textContent = emoji;
+      fish.dataset.correct = isCorrect;
+
+      fish.style.left = Math.random() * ocean.clientWidth + "px";
+      fish.style.top = Math.random() * (ocean.clientHeight - 160) + "px";
+
+      fish.addEventListener("click", () => {
+        if (fish.dataset.correct === "true") {
+          score++;
+          scoreDisplay.textContent = "Score: " + score;
+        }
+      });
+
+      ocean.appendChild(fish);
+
+      // Faster speed for correct fish
+      const speed = isCorrect ? 3000 : 7000;
+      swim(fish, speed);
+    }
+
+    function swim(fish, speed) {
+      const maxX = ocean.clientWidth - 60;
+      const maxY = ocean.clientHeight - 160;
+
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+
+      const direction =
+        x > fish.offsetLeft ? "scaleX(1)" : "scaleX(-1)";
+
+      fish.style.transitionDuration = speed + "ms";
+      fish.style.transform = direction + ` translate(${x}px, ${y}px)`;
+
+      setTimeout(() => swim(fish, speed), speed);
+    }
+
+    // ONE correct fish (faster)
+    createFish(correctFish, true);
+
+    // MANY decorative fish (slower)
+    for (let i = 0; i < 20; i++) {
+      const randomFish =
+        otherFish[Math.floor(Math.random() * otherFish.length)];
+      createFish(randomFish, false);
+    }
+  </script>
+
+</body>
+</html>
